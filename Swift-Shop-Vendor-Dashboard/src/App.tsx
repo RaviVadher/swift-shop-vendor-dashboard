@@ -1,5 +1,4 @@
 import { useState} from 'react'
-import Navbar from './componants/Navbar'
 import Home from './Home'
 import './App.css'
 
@@ -9,8 +8,6 @@ function App() {
   return (
     <>
     <Home/>
-        
-
     </>
   )
 }
