@@ -1,5 +1,6 @@
 import React, { useEffect,useState, type FormEvent } from "react";
 interface Product {
+             id: number;
              ProductName: string;
              Price:number;
              Stock: number ;
@@ -13,23 +14,29 @@ const Home : React.FC = ()=>{
     const [Stock, setStock] = useState('');
     const [Catogory, setCatogory] = useState('');
  
-    const[listproduct, setListProduct] = useState([]);
+    const[listproduct, setListProduct] = useState<Product[]>([]);
 
+    useEffect(()=>{
+       const saved = localStorage.getItem('products');
+       if(saved) setListProduct(JSON.parse(saved));
+    },[])
     useEffect(()=>{
 
         const storedProduct = localStorage.getItem('products');
         console.log(storedProduct)
         if(storedProduct)
         {
-           const parseProducts : Product [] =JSON.parse(storedProduct);
+           setListProduct(JSON.parse(storedProduct));
         }
     },[])
+
 
     
    const handleSubmit = (event:FormEvent)=>{
         event.preventDefault()
 
         const newProduct :  Product= {
+             id:Date.now(),
             Catagory:Catogory,
             ProductName: ProductName,
             Price:parseInt(Price),
@@ -60,53 +67,75 @@ const Home : React.FC = ()=>{
          localStorage.setItem('products', JSON.stringify(products));
       
         console.log(localStorage.getItem('products'));
-    }
+    };
+    const deleteItem=(id:number)=>{
+       const updated = listproduct.filter((item) => item.id !==id);
+       setListProduct(updated);
+       localStorage.setItem('products', JSON.stringify(updated));
+    };
+
     return(
-        <>
-          <div className="flax justify-center mx-auto max-w-7xl bg-gray-800 text-white">
-            <span>WelCome to the Swift-shop-wendor system</span> 
-           </div>
+        <><div>
+          <nav className="bg-blue-400  shadow fixed top-0 left-0 w-full z-10">
+            <div className="text-xl font-bold text-black-500"><h2>Swift Shop</h2></div>
 
-<hr />
+            <span className="text-sm text-gray-800"> Inventory Dashboard</span>
+         </nav>
+
+ </div>
 
 
-         <form onSubmit={handleSubmit} className="">
-         <div className="border-b border-gray-900/10 pb-12">
-            <span>Fill form to add new product</span>
+         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-4 mb-8 mt-20 relative">
+         <div className="flex flex-col md:flex-row items-center gap-3">
+            <span>Fill The Details</span>
          <div>
             <label htmlFor="Catogory" >Catagory:</label>
-            <input  id="Catogory"  type="text" value={Catogory} onChange={(e)=> setCatogory(e.target.value)}  required/>
+            <input  className="w-full border rounded-lg"id="Catogory"  type="text" value={Catogory} onChange={(e)=> setCatogory(e.target.value)}  required/>
          </div>
          <div>
             <label htmlFor="ProductName" >Product Name:</label>
-            <input  id="ProductName"  type="text" value={ProductName} onChange={(e)=> setProductName(e.target.value)}  required/>
+            <input   className="w-full border rounded-lg" id="ProductName"  type="text" value={ProductName} onChange={(e)=> setProductName(e.target.value)}  required/>
          </div>
          <div>
             <label htmlFor="Price" >Price:</label>
-            <input  id="Price"  type="number" value={Price} onChange={(e)=> setPrice(e.target.value)}  required/>
+            <input  className="w-full border rounded-lg" id="Price"  type="number" value={Price} onChange={(e)=> setPrice(e.target.value)}  required/>
          </div>
          <div>
             <label htmlFor="Stock" >Stock:</label>
-            <input  id="Stock"  type="number" value={Stock} onChange={(e)=> setStock(e.target.value)}  required/>
+            <input   className="w-full border rounded-lg" id="Stock"  type="number" value={Stock} onChange={(e)=> setStock(e.target.value)}  required/>
          </div>
          </div>
-         <button type="submit"> Add Product</button>
+         <button type="submit" className="w-full md:w-auto bg-blue-500 mt-2 text-white px-5 py-2 rounded-lg hover:bg-blue-700 trasition"> Add Product</button>
          </form>
+        
          <hr />
         
-         <div className="container ">
-      <h1 className="text-2xl ">Local Products</h1>
-      {listproduct.length > 0 ? (
-        <div className="flex flex-wrap -m-4">
-          {listproduct.map((product) => (
-            <span>{product}
-            </span> 
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-500">No products found in local storage.</p>
-      )}
-    </div>
+         <div className="min-h-screen bg-gray-100 p-6">
+            <div>
+              
+              
+                  {listproduct.length === 0?(
+                     <p className="text-center text-gray-400">No items yet</p>
+                  ):(
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {listproduct.map((item)=>(
+                           <div key={item.id} className="bg-white rounded-xl shadow p-5 flex flex-col justify-between">
+                              <div> 
+                                 <h2 className="text-xl font-semibold mb-2">NAME:{item.ProductName}</h2>
+                                  <p className="text-gray-600">Catagory:{item.Catagory}</p>
+                                  <p className="text-gray-600">Price:{item.Price}</p>
+                                  <p className="text-gray-600">Stock:{item.Stock}</p>
+
+                              
+                              <button onClick={() => deleteItem(item.id)} className="mt-4 text bg-red-400  border border-roundedhover:underline self-start">Delete</button>
+                              </div>
+                           </div>
+                        ))}
+                     </div>
+                  )}
+               </div>
+            </div>
+         
   
         </>
     );
