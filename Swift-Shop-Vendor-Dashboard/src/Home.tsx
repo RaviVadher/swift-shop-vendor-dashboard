@@ -13,13 +13,9 @@ const Home : React.FC = ()=>{
     const [Price, setPrice] = useState('');
     const [Stock, setStock] = useState('');
     const [Catogory, setCatogory] = useState('');
- 
     const[listproduct, setListProduct] = useState<Product[]>([]);
 
-    useEffect(()=>{
-       const saved = localStorage.getItem('products');
-       if(saved) setListProduct(JSON.parse(saved));
-    },[])
+   
     useEffect(()=>{
 
         const storedProduct = localStorage.getItem('products');
@@ -47,15 +43,13 @@ const Home : React.FC = ()=>{
         setProductName('');
         setPrice('');
         setCatogory('');
-        setStock('')
-
-
+        setStock('');
    }
 
+   //add item
     const addProductToLocalStorage = (product : Product) =>{
 
          const exsitingProduct = localStorage.getItem("products");
-
          let products: Product[]=[];
 
          if(exsitingProduct)
@@ -63,11 +57,14 @@ const Home : React.FC = ()=>{
             products= JSON.parse(exsitingProduct);
 
          }
-         products.push(product);
-         localStorage.setItem('products', JSON.stringify(products));
-      
-        console.log(localStorage.getItem('products'));
+          setListProduct((prev) => {
+          const updated = [...prev, product ];
+           localStorage.setItem('products', JSON.stringify(updated));
+           return updated;
+       });
     };
+
+    //Delete Item
     const deleteItem=(id:number)=>{
        const updated = listproduct.filter((item) => item.id !==id);
        setListProduct(updated);
